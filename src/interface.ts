@@ -10,7 +10,7 @@ export interface ReadRecord {
   createAt: number
   position: {
     top: number
-    process: number
+    progress: number
   }
 }
 

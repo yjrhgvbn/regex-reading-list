@@ -1,16 +1,16 @@
 import { Storage } from "@plasmohq/storage"
 
 import { isUrlMatch } from "~utils"
+import { LIST_KEY } from "~utils/const"
 
 import type { Optional, ReadRecord } from "../../interface"
 
-const LIST_KEY = "read-list"
+// cache list
+let lastList: ReadRecord[] | null = null
+const storage = new Storage()
 
 /** 更新或者插入列表 */
-export async function updateList(
-  data: Optional<ReadRecord, "id" | "createAt">
-) {
-  const storage = new Storage()
+export async function updateList(data: Optional<ReadRecord, "id" | "createAt">) {
   const record: ReadRecord = {
     id: data.id || generateId(),
     createAt: data.createAt || Date.now(),
@@ -18,32 +18,34 @@ export async function updateList(
   }
   try {
     const list: ReadRecord[] = await getList()
-    const matchIndex = list.findIndex(
-      (item) =>
-        item.id === record.id || isUrlMatch(record.currentUrl, item.match)
-    )
+    const matchIndex = list.findIndex((item) => item.id === record.id || isUrlMatch(record.currentUrl, item.match))
     if (matchIndex === -1) {
       list.push(record)
     } else {
       list[matchIndex] = record as ReadRecord
     }
     await storage.set(LIST_KEY, JSON.stringify(list))
-    return list
+    reloadList()
+    return getList()
   } catch (e) {
-    // await storage.set(LIST_KEY, JSON.stringify([record]))
-    return []
+    return lastList
   }
 }
 
-/** 获取列表 */
 export async function getList() {
-  const storage = new Storage()
+  if (lastList) return lastList
+  await reloadList()
+  return lastList
+}
+
+/** reload list from storage */
+async function reloadList() {
   const listStr = (await storage.get(LIST_KEY)) || "[]"
   try {
     const list: ReadRecord[] = JSON.parse(listStr)
-    return list
+    lastList = list
   } catch (e) {
-    return []
+    lastList = []
   }
 }
 

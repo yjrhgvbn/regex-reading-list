@@ -19,8 +19,9 @@ function IndexPopup() {
 
   async function addToList() {
     const res = await sendToBackground<never, MessageRespone<ReadRecord[]>>({
-      name: "saveCurPageToList"
+      name: "updatePageRecord"
     })
+
     setList(res.body)
   }
 

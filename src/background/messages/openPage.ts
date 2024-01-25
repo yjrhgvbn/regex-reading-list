@@ -2,6 +2,8 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import type { ReadRecord } from "~interface"
 
+import { onComplete } from "../utils"
+
 const handler: PlasmoMessaging.MessageHandler<{ record: ReadRecord }> = async (req, res) => {
   const record = req.body.record
   let tab = (await chrome.tabs.query({ url: record.currentUrl }))[0]
@@ -22,24 +24,3 @@ const handler: PlasmoMessaging.MessageHandler<{ record: ReadRecord }> = async (r
   })
 }
 export default handler
-
-export function onComplete(newTab) {
-  return new Promise((resolve) => {
-    chrome.tabs.onUpdated.addListener(listener)
-
-    function listener(tabId, info) {
-      if (isCompleteLoad() && isSameTab()) {
-        chrome.tabs.onUpdated.removeListener(listener)
-        resolve(tabId)
-      }
-
-      function isCompleteLoad() {
-        return info.status === "complete"
-      }
-
-      function isSameTab() {
-        return newTab.id === tabId
-      }
-    }
-  })
-}

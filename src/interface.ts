@@ -1,4 +1,5 @@
 export interface ReadRecord {
+  id: string
   match: {
     type: "string" | "regex"
     value: string
@@ -6,9 +7,16 @@ export interface ReadRecord {
   title: string
   mark?: string
   currentUrl: string
-  date: number
+  createAt: number
   position: {
     top: number
     process: number
   }
 }
+
+export interface MessageRespone<T> {
+  name: string
+  body: T
+}
+
+export type Optional<T, K extends keyof T> = Partial<Pick<T, K>> & Omit<T, K>

@@ -1,7 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
-import type { ReadRecord } from "../interface"
+import type { ReadRecord } from "../../interface"
 import { listStorageKey } from "../utils/const"
 
 const storage = new Storage()

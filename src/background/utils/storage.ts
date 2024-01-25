@@ -1,21 +1,37 @@
 import { Storage } from "@plasmohq/storage"
 
-import type { ReadRecord } from "../interface"
+import { isUrlMatch } from "~utils"
+
+import type { Optional, ReadRecord } from "../../interface"
 
 const LIST_KEY = "read-list"
 
 /** 更新或者插入列表 */
-export async function updateList(record: ReadRecord) {
+export async function updateList(
+  data: Optional<ReadRecord, "id" | "createAt">
+) {
   const storage = new Storage()
-  const listStr = (await storage.get(LIST_KEY)) || "[]"
+  const record: ReadRecord = {
+    id: data.id || generateId(),
+    createAt: data.createAt || Date.now(),
+    ...data
+  }
   try {
-    const list: ReadRecord[] = JSON.parse(listStr)
-    const newList = [record, ...list]
-    await storage.set(LIST_KEY, JSON.stringify(newList))
-    return newList
+    const list: ReadRecord[] = await getList()
+    const matchIndex = list.findIndex(
+      (item) =>
+        item.id === record.id || isUrlMatch(record.currentUrl, item.match)
+    )
+    if (matchIndex === -1) {
+      list.push(record)
+    } else {
+      list[matchIndex] = record as ReadRecord
+    }
+    await storage.set(LIST_KEY, JSON.stringify(list))
+    return list
   } catch (e) {
-    await storage.set(LIST_KEY, JSON.stringify([record]))
-    return [record]
+    // await storage.set(LIST_KEY, JSON.stringify([record]))
+    return []
   }
 }
 
@@ -29,4 +45,8 @@ export async function getList() {
   } catch (e) {
     return []
   }
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2)
 }

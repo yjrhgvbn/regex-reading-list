@@ -4,23 +4,31 @@ import { sendToBackground } from "@plasmohq/messaging"
 
 import "../style.css"
 
+import type { MessageRespone, ReadRecord } from "~interface"
+
 function IndexPopup() {
-  const [list, setList] = useState([])
+  const [list, setList] = useState<ReadRecord[]>([])
+
   useEffect(() => {
-    sendToBackground({
+    sendToBackground<never, MessageRespone<ReadRecord[]>>({
       name: "getReadList"
     }).then((res) => {
       setList(res.body)
     })
   }, [])
+
   async function addToList() {
-    const res = await sendToBackground({
-      name: "saveToList"
-      // data: {
-      //   list: list
-      // }
+    const res = await sendToBackground<never, MessageRespone<ReadRecord[]>>({
+      name: "saveCurPageToList"
     })
     setList(res.body)
+  }
+
+  async function jumpToRecord(record: ReadRecord) {
+    await sendToBackground<{ record: ReadRecord }>({
+      name: "openPage",
+      body: { record }
+    })
   }
 
   return (
@@ -30,7 +38,11 @@ function IndexPopup() {
       </div>
       <div>
         {list.map((item) => {
-          return <div>{item.title}</div>
+          return (
+            <div id={item.id} onClick={() => jumpToRecord(item)}>
+              {item.title}
+            </div>
+          )
         })}
       </div>
     </div>

@@ -1,8 +1,6 @@
-import { sendToBackground } from "@plasmohq/messaging"
-
 import { isUrlMatch } from "~utils"
 
-import { onComplete } from "./utils"
+import { updatePageRecord } from "./messages/updatePageRecord"
 import { getList } from "./utils/storage"
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -11,14 +9,14 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     getList().then((list) => {
       list.forEach((item) => {
         if (isUrlMatch(changeInfo.url, item.match)) {
-          onComplete(tab).then(() =>
-            chrome.tabs.sendMessage(tabId, {
-              name: "watchScroll"
-            })
-          )
           if (item.currentUrl !== changeInfo.url) {
-            sendToBackground({
-              name: "updatePageRecord"
+            updatePageRecord({
+              id: item.id,
+              currentUrl: changeInfo.url,
+              position: {
+                top: 0,
+                progress: 0
+              }
             })
           }
         }

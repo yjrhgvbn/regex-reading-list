@@ -8,7 +8,6 @@ import type { Optional, ReadRecord } from "../../interface"
 // cache list
 let lastList: ReadRecord[] | null = null
 const storage = new Storage()
-
 /** 更新或者插入列表 */
 export async function updateList(data: Optional<ReadRecord, "id" | "createAt">) {
   const record: ReadRecord = {
@@ -22,7 +21,7 @@ export async function updateList(data: Optional<ReadRecord, "id" | "createAt">) 
     if (matchIndex === -1) {
       list.push(record)
     } else {
-      list[matchIndex] = record as ReadRecord
+      deepMerge(list[matchIndex], record)
     }
     await storage.set(LIST_KEY, JSON.stringify(list))
     reloadList()
@@ -51,4 +50,19 @@ async function reloadList() {
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2)
+}
+
+function deepMerge<T extends Record<string, any>>(target: T, source: T) {
+  for (const key in source) {
+    if (typeof source[key] === "object") {
+      if (typeof target[key] !== "object") {
+        target[key] = source[key]
+      } else {
+        deepMerge(target[key], source[key])
+      }
+    } else {
+      target[key] = source[key] ?? target[key]
+    }
+  }
+  return target
 }

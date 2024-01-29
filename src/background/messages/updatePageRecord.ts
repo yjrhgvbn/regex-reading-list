@@ -12,38 +12,66 @@ export type RequestBody = {
 export type ResponseBody = {
   message: string
 }
-const handler: PlasmoMessaging.MessageHandler<undefined | { position: ReadRecord["position"] }> = async (req, res) => {
-  const tab = await getCurrentTab()
-  let position = req.body?.position
-  if (!position) {
-    position = await sendToContentScript<any, ReadRecord["position"]>({
-      name: "getScrollInfo"
-    })
-    // if no position, tell content script to watch scroll
-    onComplete(tab).then(() => {
-      chrome.tabs.sendMessage(tab.id, {
-        name: "watchScroll"
-      })
-    })
-  }
-  const recordList = await updateList({
-    currentUrl: tab.url,
-    match: {
-      type: "string",
-      value: tab.url
-    },
-    position,
-    title: tab.title
-  })
 
-  res.send({
-    body: recordList
-  })
+export async function updatePageRecord(params: Partial<ReadRecord>) {
+  const tab = await getCurrentTab()
+  let { position, id, match, title, currentUrl } = params
+  if (id) {
+    const recordList = await updateList({
+      id,
+      currentUrl: currentUrl,
+      match: {
+        type: match?.type,
+        value: match?.value
+      },
+      position,
+      title: title
+    })
+    return recordList
+  } else {
+    if (!position) {
+      position = await sendToContentScript<any, ReadRecord["position"]>({
+        name: "getScrollInfo"
+      })
+      onComplete(tab).then(() => {
+        chrome.tabs.sendMessage(tab.id, {
+          name: "watchScroll",
+          body: {
+            id
+          }
+        })
+      })
+    }
+    const recordList = await updateList({
+      currentUrl: tab.url,
+      match: {
+        type: match?.type || "string",
+        value: match?.value || tab.url
+      },
+      position,
+      title: title || tab.title
+    })
+    return recordList
+  }
 }
+
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true }
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
   let [tab] = await chrome.tabs.query(queryOptions)
   return tab
 }
+
+export type UpdatePageRecordRequest = Parameters<typeof updatePageRecord>[0]
+export type UpdatePageRecordResponse = Awaited<ReturnType<typeof updatePageRecord>>
+export type UpdatePageRecordMessage = { body: UpdatePageRecordResponse }
+
+const handler: PlasmoMessaging.MessageHandler<UpdatePageRecordRequest, UpdatePageRecordMessage> = async (req, res) => {
+  res.send({
+    body: {
+      ...(await updatePageRecord(req.body))
+    }
+  })
+}
+
 export default handler

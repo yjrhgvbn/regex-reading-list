@@ -2,6 +2,7 @@ import type { PlasmoCSConfig } from "plasmo"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
+import type { ActivePageRequest, ActivePageResponse } from "~background/messages/getActivePage"
 import type { ReadRecord } from "~interface"
 
 import { getScrollInfo } from "./utils"
@@ -10,15 +11,16 @@ export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
 
-let isNeedUpdateScrollInfo = false
+let watchId: string | null = null
 window.addEventListener(
   "scroll",
   () => {
-    if (!isNeedUpdateScrollInfo) return
-    sendToBackground<{ position: ReadRecord["position"] }>({
+    if (!watchId) return
+    sendToBackground<Partial<ReadRecord>>({
       name: "updatePageRecord",
       body: {
-        position: getScrollInfo()
+        position: getScrollInfo(),
+        id: watchId
       }
     })
   },
@@ -27,9 +29,9 @@ window.addEventListener(
   }
 )
 
-sendToBackground<{ isRecord: boolean }>({ name: "checkInRecord" }).then((res) => {
-  if (res.isRecord) {
-    isNeedUpdateScrollInfo = true
+sendToBackground<ActivePageRequest, ActivePageResponse>({ name: "getActivePage" }).then((res) => {
+  if (res.body.id) {
+    watchId = res.body.id
   }
 })
 
@@ -43,7 +45,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(scrollInfo)
       break
     case "watchScroll":
-      isNeedUpdateScrollInfo = true
+      watchId = message.body.id
       break
     default:
       break

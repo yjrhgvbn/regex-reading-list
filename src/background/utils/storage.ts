@@ -34,7 +34,7 @@ export async function updateList(data: Optional<ReadRecord, "id" | "createAt">) 
 export async function getList() {
   if (lastList) return lastList
   await reloadList()
-  return lastList
+  return lastList || []
 }
 
 /** reload list from storage */

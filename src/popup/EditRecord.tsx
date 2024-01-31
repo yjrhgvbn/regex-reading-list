@@ -2,14 +2,15 @@ import { useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
-import type { ActivePageMessage } from "~background/messages/getActivePage"
+import type { GetPageInfoMessage, GetPageInfoRequest } from "~background/messages/getPageInfo"
 import type { MessageRespone, ReadRecord } from "~interface"
 
 import { CustomerForm, FormInput, Formtoggle } from "./Form"
 import type { FormValidity } from "./Form/Form"
 import { useNavigate } from "./use"
 
-export function EditRecord() {
+export function EditRecord(props: { id?: string }) {
+  const { id } = props
   const navigate = useNavigate()
   const [formState, setFormState] = useState({
     title: "",
@@ -20,7 +21,7 @@ export function EditRecord() {
     currentUrl: ""
   })
   useEffect(() => {
-    sendToBackground<never, ActivePageMessage>({ name: "getActivePage" }).then((res) => {
+    sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo", body: { id } }).then((res) => {
       setFormState({
         ...formState,
         url: res.body.url,
@@ -74,17 +75,20 @@ export function EditRecord() {
     setFormState(newSate)
   }
   return (
-    <CustomerForm
-      state={formState}
-      onChange={handleValueChange}
-      onSaved={onSave}
-      onCancel={onCancel}
-      validity={validity}>
-      <FormInput label="title" filed="title" />
-      <Formtoggle label="isRegex" filed="isRegex" onChange={onRegexChange} />
-      <FormInput label="url" filed="url" disabled={!formState.isRegex} />
-      <FormInput label="mark" filed="mark" />
-    </CustomerForm>
+    <>
+      <div className="mb-2">{formState.currentUrl} </div>
+      <CustomerForm
+        state={formState}
+        onChange={handleValueChange}
+        onSaved={onSave}
+        onCancel={onCancel}
+        validity={validity}>
+        <FormInput label="title" filed="title" />
+        <Formtoggle label="isRegex" filed="isRegex" onChange={onRegexChange} />
+        <FormInput label="url" filed="url" disabled={!formState.isRegex} />
+        <FormInput label="mark" filed="mark" />
+      </CustomerForm>
+    </>
   )
 }
 export default EditRecord

@@ -2,7 +2,7 @@ import type { PlasmoCSConfig } from "plasmo"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
-import type { ActivePageRequest, ActivePageResponse } from "~background/messages/getActivePage"
+import type { GetPageInfoMessage, GetPageInfoRequest } from "~background/messages/getPageInfo"
 import type { ReadRecord } from "~interface"
 
 import { getScrollInfo } from "./utils"
@@ -12,8 +12,9 @@ export const config: PlasmoCSConfig = {
 }
 
 let watchId: string | null = null
+// use scrollend event to reduce the number of messages
 window.addEventListener(
-  "scroll",
+  "scrollend",
   () => {
     if (!watchId) return
     sendToBackground<Partial<ReadRecord>>({
@@ -29,7 +30,7 @@ window.addEventListener(
   }
 )
 
-sendToBackground<ActivePageRequest, ActivePageResponse>({ name: "getActivePage" }).then((res) => {
+sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo" }).then((res) => {
   if (res.body.id) {
     watchId = res.body.id
   }
@@ -46,6 +47,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break
     case "watchScroll":
       watchId = message.body.id
+      break
+    case "clearWatchScroll":
+      watchId = null
       break
     default:
       break

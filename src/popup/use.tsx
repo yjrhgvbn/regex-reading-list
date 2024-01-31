@@ -3,9 +3,9 @@ import { useMemo, useSyncExternalStore } from "react"
 import { EditRecord } from "./EditRecord"
 import { RecordList } from "./RecordList"
 
-let history: string[] = []
+let history: { name: string; props: any }[] = []
 let listeners: (() => void)[] = []
-let curPage = "home"
+let curPage: { name: string; props: any } | null = null
 
 const PageMap = {
   home: RecordList,
@@ -25,23 +25,25 @@ function emitChange() {
 
 export function useNavigate() {
   return useMemo(() => {
-    return (url: keyof typeof PageMap | number) => {
+    function navigate<T extends keyof typeof PageMap>(url: T | number, data?: Parameters<(typeof PageMap)[T]>[0]) {
       if (typeof url === "number") {
         history = history.slice(0, url)
-        curPage = history.at(-1) || "home"
+        curPage = history.at(-1) || { name: "home", props: {} }
       } else {
-        history = [...history, url]
-        curPage = url
+        history = [...history, { name: url, props: data }]
+        curPage = { name: url, props: data }
       }
       emitChange()
     }
+    return navigate
   }, [])
 }
 
-export function usePage() {
-  const key = useSyncExternalStore(subscribe, () => curPage)
-  const Page = useMemo(() => {
-    return PageMap[key]
+export function usePage(): (typeof PageMap)[keyof typeof PageMap] {
+  const key = (useSyncExternalStore(subscribe, () => curPage?.name) as keyof typeof PageMap) || "home"
+  return useMemo(() => {
+    const Page = PageMap[key]
+    if (curPage?.props) return (param: any) => <Page {...curPage!.props} {...param} />
+    return Page
   }, [key])
-  return Page
 }

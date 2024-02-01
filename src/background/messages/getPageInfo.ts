@@ -28,7 +28,8 @@ async function getPageInfo(params?: { id?: string }) {
     url: matchRecord?.match?.value || tab.url!,
     isRegex: matchRecord?.match?.type === "regex",
     title: matchRecord?.title || tab.title!,
-    id: matchRecord?.id
+    id: matchRecord?.id,
+    record: matchRecord
   }
 }
 

@@ -6,7 +6,7 @@ function IndexPopup() {
   const Page = usePage()
 
   return (
-    <div className="w-80 p-2">
+    <div className="w-96">
       <Page />
     </div>
   )

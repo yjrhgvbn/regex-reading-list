@@ -3,11 +3,8 @@ import { useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
-import type {
-  RemovePageRecordMessage,
-  RemovePageRecordRequest,
-  RemovePageRecordResponse
-} from "~background/messages/removePageRecord"
+import type { GetPageInfoMessage, GetPageInfoRequest } from "~background/messages/getPageInfo"
+import type { RemovePageRecordMessage, RemovePageRecordRequest } from "~background/messages/removePageRecord"
 import type { MessageRespone, ReadRecord } from "~interface"
 
 import { useNavigate } from "./use"
@@ -15,6 +12,7 @@ import { useNavigate } from "./use"
 export function RecordList() {
   const navigate = useNavigate()
   const [list, setList] = useState<ReadRecord[]>([])
+  const [curRecord, setCurRecord] = useState<ReadRecord>()
   useEffect(() => {
     sendToBackground<never, MessageRespone<ReadRecord[]>>({
       name: "getReadList"
@@ -22,6 +20,14 @@ export function RecordList() {
       setList(res.body)
     })
   }, [])
+
+  useEffect(() => {
+    sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo" }).then((res) => {
+      if (res.body.record) {
+        setCurRecord(res.body.record)
+      }
+    })
+  })
 
   async function jumpToRecord(record: ReadRecord) {
     await sendToBackground<{ record: ReadRecord }>({
@@ -49,14 +55,22 @@ export function RecordList() {
   }
 
   return (
-    <div>
-      <div onClick={() => openEditPage()}>add to list</div>
-      <ul className="max-w-md divide-y divide-gray-200 cursor-pointer border-y">
+    <div className="pt-1">
+      <div className="flex justify-between items-center px-2 text-gray-700 font-medium">
+        <div className="truncate">{curRecord ? curRecord?.title : "click add to save process"}</div>
+        <button
+          onClick={() => openEditPage()}
+          type="button"
+          className="text-gray-900 hover:bg-gray-200 hover:text-blue-700 border-gray-300 focus:outline-none bg-gray-100 rounded-md font-medium ext-sm px-2 py-1 me-2 mb-1 ">
+          {curRecord ? "edit" : "add"}
+        </button>
+      </div>
+      <ul className="max-w-md divide-y divide-gray-200 cursor-pointer border-t">
         {list.map((record) => {
           return (
             <li className="group" onClick={() => jumpToRecord(record)} key={record.id}>
-              <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                <div className="flex-1 min-w-0 py-1 ">
+              <div className="flex items-center rtl:space-x-reverse pl-2 ">
+                <div className="flex-1 min-w-0 py-1  ">
                   <p className="text-xs font-medium text-gray-900 truncate">{record.title}</p>
                   <p className="text-xs text-gray-500 truncate ">{record.currentUrl}</p>
                 </div>
@@ -76,15 +90,44 @@ export function RecordList() {
                       deleteRecord(record)
                     }}
                     type="button"
-                    className="px-1 h-full text-sm font-medium text-blue-700 bg-white border-x hover:bg-gray-100">
+                    className="px-1 h-full text-sm font-medium text-blue-700 bg-white border-l hover:bg-gray-100">
                     <Trash size={20} />
                   </button>
                 </div>
+                <ProgressRing className="block  group-hover:hidden " progress={Math.round(record.position.progress)} />
               </div>
             </li>
           )
         })}
       </ul>
+    </div>
+  )
+}
+
+function ProgressRing(props: { progress: number; className?: string }) {
+  const { progress, className = "" } = props
+  const radius = 20
+  const stroke = 3
+  const normalizedRadius = radius - stroke * 2
+  const circumference = normalizedRadius * 2 * Math.PI
+  const strokeDashoffset = circumference - (progress / 100) * circumference
+  return (
+    <div style={{ height: radius * 2, width: radius * 2 }} className={"relative " + className}>
+      <svg height={radius * 2} width={radius * 2}>
+        <circle
+          stroke="#2A4DD0"
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeDasharray={circumference + " " + circumference}
+          style={{ strokeDashoffset }}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+        <span>{progress}</span>
+      </div>
     </div>
   )
 }

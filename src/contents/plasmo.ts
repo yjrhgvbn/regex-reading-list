@@ -30,8 +30,8 @@ window.addEventListener(
   }
 )
 
-sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo" }).then((res) => {
-  if (res.body.id) {
+sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo" }).then(async (res) => {
+  if (res.body.isNeedWatch && res.body.id) {
     watchId = res.body.id
   }
 })

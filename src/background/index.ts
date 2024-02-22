@@ -1,3 +1,4 @@
+import { checkIsNeedWatchScroll } from "~background/utils/tabRecord"
 import { isUrlMatch } from "~utils"
 
 import { updatePageRecord } from "./messages/updatePageRecord"
@@ -10,13 +11,16 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       list.forEach((item) => {
         if (isUrlMatch(changeInfo.url, item.match)) {
           if (item.currentUrl !== changeInfo.url) {
-            updatePageRecord({
-              id: item.id,
-              currentUrl: changeInfo.url,
-              position: {
-                top: 0,
-                progress: 0
-              }
+            checkIsNeedWatchScroll(tabId).then((isNeedWatch) => {
+              if (isNeedWatch)
+                updatePageRecord({
+                  id: item.id,
+                  currentUrl: changeInfo.url,
+                  position: {
+                    top: 0,
+                    progress: 0
+                  }
+                })
             })
           }
         }

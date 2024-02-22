@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { sendToBackground } from "@plasmohq/messaging"
 
 import type { GetPageInfoMessage, GetPageInfoRequest } from "~background/messages/getPageInfo"
-import type { MessageRespone, ReadRecord } from "~interface"
+import type { GetRecordMessage, GetRecordRequest } from "~background/messages/getRecord"
 
 import { CustomerForm, FormInput, Formtoggle } from "./Form"
 import type { FormValidity } from "./Form/Form"
@@ -21,16 +21,32 @@ export function EditRecord(props: { id?: string }) {
     currentUrl: ""
   })
   useEffect(() => {
-    sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo", body: { id } }).then((res) => {
-      setFormState({
-        ...formState,
-        url: res.body.url,
-        title: res.body.title,
-        id: res.body.id || "",
-        isRegex: res.body.isRegex ?? false,
-        currentUrl: res.body.currentUrl
+    if (!id) {
+      sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo" }).then((res) => {
+        console.log("🚀 ~ sendToBackground<GetPageInfoRequest,GetPageInfoMessage> ~ res:", res)
+        if (!res.body) return
+        setFormState({
+          ...formState,
+          url: res.body.url,
+          title: res.body.title,
+          id: res.body.id || "",
+          isRegex: res.body.isRegex ?? false,
+          currentUrl: res.body.currentUrl
+        })
       })
-    })
+    } else {
+      sendToBackground<GetRecordRequest, GetRecordMessage>({ name: "getRecord", body: { id } }).then((res) => {
+        if (!res.body) return
+        setFormState({
+          ...formState,
+          url: res.body.url,
+          title: res.body.title,
+          id: res.body.id || "",
+          isRegex: res.body.isRegex ?? false,
+          currentUrl: res.body.currentUrl
+        })
+      })
+    }
   }, [])
 
   function handleValueChange(key: string, value: string | boolean) {
@@ -52,16 +68,17 @@ export function EditRecord(props: { id?: string }) {
 
   async function onSave(isValid: boolean) {
     if (!isValid) return
-    await sendToBackground<Partial<ReadRecord>, MessageRespone<ReadRecord[]>>({
-      name: "updatePageRecord",
-      body: {
-        id: formState.id,
-        title: formState.title,
-        match: {
-          type: formState.isRegex ? "regex" : "string",
-          value: formState.url
-        }
+    const body = {
+      id: formState.id,
+      title: formState.title,
+      match: {
+        type: formState.isRegex ? "regex" : "string",
+        value: formState.url
       }
+    }
+    await sendToBackground({
+      name: formState.id ? "updatePageRecord" : "addPageRecord",
+      body
     })
     navigate(-1)
   }

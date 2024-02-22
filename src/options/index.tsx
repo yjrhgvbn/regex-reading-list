@@ -2,19 +2,16 @@ import "./index.css"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
-import { CONFIG_KEY } from "~utils/const"
+import { CONFIG_KEY, ConfigEnum, configSetting } from "~utils/const"
 
-const defaultConfig = {
-  updateOnlyOpenByPlugin: true
-}
-const tips: Record<keyof typeof defaultConfig, { title: string; describe?: string }> = {
+const tips: Record<ConfigEnum, { title: string; describe?: string }> = {
   updateOnlyOpenByPlugin: {
     title: "update progress only open page by plugin"
     // describe: "仅在插件打开时更新，关闭插件时不更新"
   }
 }
 function IndexOptions() {
-  const [config, setConfig] = useStorage<typeof defaultConfig>(CONFIG_KEY, (v) => ({ ...defaultConfig, ...v }))
+  const [config, setConfig] = useStorage<typeof configSetting>(CONFIG_KEY, (v) => ({ ...configSetting, ...v }))
 
   function updateConfig(key: keyof typeof config, value: boolean) {
     setConfig({ ...config, [key]: value })
@@ -22,8 +19,8 @@ function IndexOptions() {
 
   return (
     <div>
-      {Object.entries(config).map(([key, value]: [keyof typeof tips, boolean]) => {
-        const tip = tips[key]
+      {Object.entries(config).map(([key, value]) => {
+        const tip = tips[key as ConfigEnum]
         return (
           <div className="flex">
             <div className="flex items-center h-5">
@@ -34,7 +31,7 @@ function IndexOptions() {
                 checked={value}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded "
                 onChange={(e) => {
-                  updateConfig(key, e.target.checked)
+                  updateConfig(key as ConfigEnum, e.target.checked)
                 }}
               />
             </div>

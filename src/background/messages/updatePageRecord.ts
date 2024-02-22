@@ -15,40 +15,22 @@ export type ResponseBody = {
 }
 
 export async function updatePageRecord(params: Partial<ReadRecord> = {}) {
-  const tab = await getCurrentTab()
-  const { position: paramPostion, id, match, title } = params
-  if (id) {
-    const recordList = await updateList(params)
-    return recordList
-  } else {
-    let position = paramPostion
-    if (!paramPostion) {
-      position = await sendToContentScript<any, ReadRecord["position"]>({
-        name: "getScrollInfo"
-      })
-    }
-    const { list: recordList, record } = await updateList({
-      currentUrl: tab.url,
-      match: {
-        type: match?.type || "string",
-        value: match?.value || tab.url
-      },
-      position,
-      title: title || tab.title
-    })
-
-    if (!paramPostion && record) {
-      // onComplete(tab).then(() => {
-      chrome.tabs.sendMessage(tab.id!, {
-        name: "watchScroll",
-        body: {
-          id: record.id
-        }
-      })
-      // })
-    }
-    return recordList
+  const { position: paramPostion, id } = params
+  if (!id) {
+    return null
   }
+  let position = paramPostion
+  if (!paramPostion) {
+    position = await sendToContentScript<any, ReadRecord["position"]>({
+      name: "getScrollInfo"
+    })
+  }
+  const { list: recordList, record } = await updateList({
+    ...params,
+    position
+  })
+
+  return recordList
 }
 
 export type UpdatePageRecordRequest = Parameters<typeof updatePageRecord>[0]

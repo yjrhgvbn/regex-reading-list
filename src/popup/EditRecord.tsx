@@ -18,12 +18,12 @@ export function EditRecord(props: { id?: string }) {
     mark: "",
     isRegex: false,
     id: "",
-    currentUrl: ""
+    currentUrl: "",
+    favIconUrl: ""
   })
   useEffect(() => {
     if (!id) {
       sendToBackground<GetPageInfoRequest, GetPageInfoMessage>({ name: "getPageInfo" }).then((res) => {
-        console.log("🚀 ~ sendToBackground<GetPageInfoRequest,GetPageInfoMessage> ~ res:", res)
         if (!res.body) return
         setFormState({
           ...formState,
@@ -31,7 +31,8 @@ export function EditRecord(props: { id?: string }) {
           title: res.body.title,
           id: res.body.id || "",
           isRegex: res.body.isRegex ?? false,
-          currentUrl: res.body.currentUrl
+          currentUrl: res.body.currentUrl,
+          favIconUrl: res.body.favIconUrl || ""
         })
       })
     } else {
@@ -43,7 +44,8 @@ export function EditRecord(props: { id?: string }) {
           title: res.body.title,
           id: res.body.id || "",
           isRegex: res.body.isRegex ?? false,
-          currentUrl: res.body.currentUrl
+          currentUrl: res.body.currentUrl,
+          favIconUrl: res.body.favIconUrl || ""
         })
       })
     }
@@ -92,8 +94,11 @@ export function EditRecord(props: { id?: string }) {
     setFormState(newSate)
   }
   return (
-    <>
-      <div className="mb-2">{formState.currentUrl} </div>
+    <div className="m-2">
+      <div className="mb-2 flex items-center">
+        {formState.favIconUrl && <img src={formState.favIconUrl} className="h-4 w-4 mr-1"></img>}
+        <span>{formState.currentUrl}</span>{" "}
+      </div>
       <CustomerForm
         state={formState}
         onChange={handleValueChange}
@@ -105,7 +110,7 @@ export function EditRecord(props: { id?: string }) {
         <FormInput label="url" filed="url" disabled={!formState.isRegex} />
         <FormInput label="mark" filed="mark" />
       </CustomerForm>
-    </>
+    </div>
   )
 }
 export default EditRecord

@@ -35,7 +35,8 @@ export async function updateList(record: DeepPartial<ReadRecord>) {
             top: 0,
             progress: 0
           },
-          title: "未命名"
+          title: "未命名",
+          favIconUrl: ""
         } as const,
         record
       )
@@ -93,16 +94,18 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2)
 }
 
-function deepMerge<T extends Record<string, any>>(target: T, source: Record<string, any>) {
-  for (const key in target) {
-    if (!Object.prototype.hasOwnProperty.call(target, key)) continue
+function deepMerge<T extends Record<string, any>>(target: T, source: Record<string, any>): T {
+  for (const key in source) {
+    // if (!Object.prototype.hasOwnProperty.call(target, key)) continue
     if (!Object.prototype.hasOwnProperty.call(source, key)) continue
-    if (Object.prototype.toString.call(target[key]) !== Object.prototype.toString.call(source[key])) continue
+    // if (Object.prototype.toString.call(target[key]) !== Object.prototype.toString.call(source[key])) continue
     if (typeof source[key] === "object") {
       deepMerge(target[key], source[key])
     } else {
+      // @ts-ignore
       target[key] = source[key] ?? target[key]
     }
   }
+
   return target
 }

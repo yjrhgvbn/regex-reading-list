@@ -15,22 +15,13 @@ export type ResponseBody = {
 }
 
 export async function updatePageRecord(params: Partial<ReadRecord> = {}) {
-  const { position: paramPostion, id } = params
+  const { id } = params
   if (!id) {
     return null
   }
-  let position = paramPostion
-  if (!paramPostion) {
-    position = await sendToContentScript<any, ReadRecord["position"]>({
-      name: "getScrollInfo"
-    })
-  }
-  const { list: recordList, record } = await updateList({
-    ...params,
-    position
-  })
+  const { list } = await updateList(params)
 
-  return recordList
+  return list
 }
 
 export type UpdatePageRecordRequest = Parameters<typeof updatePageRecord>[0]

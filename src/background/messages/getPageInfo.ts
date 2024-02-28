@@ -12,7 +12,7 @@ async function getPageInfo() {
   const tab = (await chrome.tabs.query({ active: true }))[0]
   const list = await getList()
   const matchRecord = list.find((item) => isUrlMatch(tab.url || "", item.match))
-  const isNeedWatch = await checkIsNeedWatchScroll(tab.id)
+  const { isNeedWatch } = await checkIsNeedWatchScroll(tab)
   return {
     currentUrl: tab.url!,
     url: matchRecord?.match?.value || tab.url!,
@@ -20,6 +20,7 @@ async function getPageInfo() {
     title: matchRecord?.title || tab.title!,
     id: matchRecord?.id,
     record: matchRecord,
+    favIconUrl: matchRecord?.favIconUrl || tab.favIconUrl,
     isNeedWatch
   }
 }

@@ -20,7 +20,8 @@ async function getRecord(params?: { id?: string }) {
       url: matchRecord.match?.value || matchRecord.currentUrl,
       isRegex: matchRecord.match?.type === "regex",
       title: matchRecord.title || matchRecord.currentUrl,
-      id: matchRecord.id
+      id: matchRecord.id,
+      favIconUrl: matchRecord.favIconUrl
     }
   }
   return null

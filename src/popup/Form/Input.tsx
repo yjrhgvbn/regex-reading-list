@@ -41,7 +41,6 @@ export function FormInput(props: FormInputProps) {
         type="text"
         id={id}
         disabled={disabled}
-        required
         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
       />
     </div>

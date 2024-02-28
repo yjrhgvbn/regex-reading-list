@@ -18,3 +18,25 @@ export function onComplete(newTab: chrome.tabs.Tab) {
     }
   })
 }
+
+export function onIconLoad(newTab: chrome.tabs.Tab): Promise<string | undefined> {
+  if (newTab.favIconUrl) return Promise.resolve(newTab.favIconUrl)
+  return new Promise((resolve) => {
+    chrome.tabs.onUpdated.addListener(listener)
+
+    function listener(id: number, info: chrome.tabs.TabChangeInfo) {
+      if (isIconLoad() && isSameTab()) {
+        chrome.tabs.onUpdated.removeListener(listener)
+        resolve(info.favIconUrl)
+      }
+
+      function isIconLoad() {
+        return info.favIconUrl
+      }
+
+      function isSameTab() {
+        return newTab.id === id
+      }
+    }
+  })
+}

@@ -12,6 +12,7 @@ export interface ReadRecord {
     top: number
     progress: number
   }
+  favIconUrl?: string
 }
 
 export interface MessageRespone<T> {

@@ -1,5 +1,7 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging"
+import { sendToContentScript, type PlasmoMessaging } from "@plasmohq/messaging"
 
+import { getScrollInfo } from "~background/action/getScrollInfo"
+import { watchScroll } from "~background/action/watchScroll"
 import { getCurrentTab } from "~utils"
 
 import type { ReadRecord } from "../../interface"
@@ -15,22 +17,24 @@ export type ResponseBody = {
 
 export async function addPageRecord(params: Partial<ReadRecord> = {}) {
   const tab = await getCurrentTab()
-  const { match, title } = params
+  const { match, title, position: paramPostion } = params
+
+  let position = paramPostion
+  if (!paramPostion) {
+    position = await getScrollInfo(tab.id!)
+  }
   const { list: recordList, record } = await updateList({
     currentUrl: tab.url,
     match: {
       type: match?.type || "string",
       value: match?.value || tab.url
     },
-    title: title || tab.title
+    title: title || tab.title,
+    position,
+    favIconUrl: tab.favIconUrl
   })
   if (record) {
-    chrome.tabs.sendMessage(tab.id!, {
-      name: "watchScroll",
-      body: {
-        id: record.id
-      }
-    })
+    watchScroll(tab.id!, record.id)
   }
   return recordList
 }

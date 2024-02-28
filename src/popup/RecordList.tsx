@@ -71,7 +71,10 @@ export function RecordList() {
             <li className="group" onClick={() => jumpToRecord(record)} key={record.id}>
               <div className="flex items-center rtl:space-x-reverse pl-2 ">
                 <div className="flex-1 min-w-0 py-1  ">
-                  <p className="text-xs font-medium text-gray-900 truncate">{record.title}</p>
+                  <p className="text-xs font-medium text-gray-900 truncate flex">
+                    {record.favIconUrl && <img src={record.favIconUrl} className="h-4 w-4 mr-1"></img>}
+                    <span>{record.title}</span>
+                  </p>
                   <p className="text-xs text-gray-500 truncate ">{record.currentUrl}</p>
                 </div>
                 <div className="hidden self-stretch group-hover:flex items-center text-base font-semibold text-gray-900 ">

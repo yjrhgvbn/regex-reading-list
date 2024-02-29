@@ -65,10 +65,17 @@ export function RecordList() {
           {curRecord ? "edit" : "add"}
         </button>
       </div>
-      <ul className="max-w-md divide-y divide-gray-200 cursor-pointer border-t">
+      <ul className="max-w-md max-h-80 overflow-auto divide-y divide-gray-200 cursor-pointer border-t">
         {list.map((record) => {
           return (
-            <li className="group" onClick={() => jumpToRecord(record)} key={record.id}>
+            <li
+              className="group"
+              onClick={() => jumpToRecord(record)}
+              onContextMenu={(e) => {
+                e.preventDefault()
+                openEditPage(record)
+              }}
+              key={record.id}>
               <div className="flex items-center rtl:space-x-reverse pl-2 ">
                 <div className="flex-1 min-w-0 py-1  ">
                   <p className="text-xs font-medium text-gray-900 truncate flex">

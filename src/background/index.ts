@@ -20,13 +20,13 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     })
   }
 })
-chrome.tabs.onCreated.addListener((tab) => {
-  checkIsNeedWatchScroll(tab).then((isNeedWatch) => {
-    if (isNeedWatch) {
-      setBadge(tab.id!)
-    }
-  })
-})
+// chrome.tabs.onCreated.addListener((tab) => {
+//   checkIsNeedWatchScroll(tab).then(({ isNeedWatch }) => {
+//     if (isNeedWatch) {
+//       setBadge(tab.id!)
+//     }
+//   })
+// })
 
 function setBadge(tabId: number) {
   chrome.action.setBadgeText({ text: "—", tabId })

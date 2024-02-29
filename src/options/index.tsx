@@ -18,11 +18,13 @@ function IndexOptions() {
   }
 
   return (
-    <div>
+    <div className="mx-auto pt-10  max-w-[600px]">
+      <div className="text-3xl font-bold border-b text-red-600">Settting</div>
+
       {Object.entries(config).map(([key, value]) => {
         const tip = tips[key as ConfigEnum]
         return (
-          <div className="flex">
+          <div className="flex pt-2" key={key}>
             <div className="flex items-center h-5">
               <input
                 id="helper-checkbox"

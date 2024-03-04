@@ -1,6 +1,6 @@
 {
-  "name": "after-read-list",
-  "displayName": "After read list",
+  "name": "regex-reading-list",
+  "displayName": "regex reading list",
   "version": "0.0.1",
   "description": "save a page or website to your reading list",
   "author": "palmpam",

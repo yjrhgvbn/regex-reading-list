@@ -2,12 +2,16 @@ import { checkIsNeedWatchScroll } from "~background/utils/tabRecord"
 
 import { watchScroll } from "./action/watchScroll"
 import { updatePageRecord } from "./messages/updatePageRecord"
+import { clearWatchScroll } from "./action/clearWatchScroll"
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if(changeInfo.url){
+    clearWatchScroll(tab.id!)
+
+  }
   if (changeInfo.url || changeInfo.status === "complete") {
     checkIsNeedWatchScroll(tab).then(({ isNeedWatch, matchRecord }) => {
       if (isNeedWatch) {
-        setBadge(tabId)
         if (changeInfo.url) {
           updatePageRecord({
             id: matchRecord!.id,
@@ -28,8 +32,4 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 //   })
 // })
 
-function setBadge(tabId: number) {
-  chrome.action.setBadgeText({ text: "—", tabId })
-  chrome.action.setBadgeBackgroundColor({ color: "#FF0000", tabId })
-}
 export {}

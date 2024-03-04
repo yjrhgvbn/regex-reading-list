@@ -3,6 +3,7 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { getCurrentTab } from "~utils"
 
 import { removeRecord } from "../utils/storage"
+import { clearWatchScroll } from "~background/action/clearWatchScroll"
 
 async function removePageRecord(params?: { id: string }) {
   const { id } = params || {}
@@ -20,12 +21,7 @@ const handler: PlasmoMessaging.MessageHandler<RemovePageRecordRequest, RemovePag
   if (req.body && body) {
     const tab = await getCurrentTab()
     if (tab) {
-      chrome.tabs.sendMessage(tab.id!, {
-        name: "clearWatchScroll",
-        body: {
-          id: req.body.id
-        }
-      })
+      clearWatchScroll(tab.id!)
     }
   }
   res.send({ body })

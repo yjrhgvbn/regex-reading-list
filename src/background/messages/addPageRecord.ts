@@ -32,7 +32,8 @@ export async function addPageRecord(params: Partial<ReadRecord> = {}) {
     title: title || tab.title,
     position,
     favIconUrl: tab.favIconUrl
-  })
+  })  
+
   if (record) {
     watchScroll(tab.id!, record.id)
   }

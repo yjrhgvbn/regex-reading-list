@@ -5,4 +5,10 @@ export async function watchScroll(tabId: number, recordId: string) {
       id: recordId
     }
   })
+  setBadge(tabId)
+}
+
+function setBadge(tabId: number) {
+  chrome.action.setBadgeText({ text: "—", tabId })
+  chrome.action.setBadgeBackgroundColor({ color: "#FF0000", tabId })
 }

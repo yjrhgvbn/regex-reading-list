@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import TimeAgo from "react-timeago"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
@@ -7,6 +8,7 @@ import type { GetRecordMessage, GetRecordRequest } from "~background/messages/ge
 
 import { CustomerForm, FormInput, Formtoggle } from "./Form"
 import type { FormValidity } from "./Form/Form"
+import { FormTextArea } from "./Form/TextArea"
 import { useNavigate } from "./use"
 
 export function EditRecord(props: { id?: string }) {
@@ -19,7 +21,9 @@ export function EditRecord(props: { id?: string }) {
     isRegex: false,
     id: "",
     currentUrl: "",
-    favIconUrl: ""
+    favIconUrl: "",
+    createAt: 0,
+    progress: 0
   })
   useEffect(() => {
     if (!id) {
@@ -27,24 +31,21 @@ export function EditRecord(props: { id?: string }) {
         if (!res.body) return
         setFormState({
           ...formState,
-          url: res.body.url,
-          title: res.body.title,
+          ...res.body,
           id: res.body.id || "",
           isRegex: res.body.isRegex ?? false,
-          currentUrl: res.body.currentUrl,
           favIconUrl: res.body.favIconUrl || ""
         })
       })
     } else {
       sendToBackground<GetRecordRequest, GetRecordMessage>({ name: "getRecord", body: { id } }).then((res) => {
+        console.log("🚀 ~ sendToBackground<GetRecordRequest,GetRecordMessage> ~ res:", res)
         if (!res.body) return
         setFormState({
           ...formState,
-          url: res.body.url,
-          title: res.body.title,
+          ...res.body,
           id: res.body.id || "",
           isRegex: res.body.isRegex ?? false,
-          currentUrl: res.body.currentUrl,
           favIconUrl: res.body.favIconUrl || ""
         })
       })
@@ -95,10 +96,20 @@ export function EditRecord(props: { id?: string }) {
   }
   return (
     <div className="m-2">
-      <div className="mb-2 flex items-center">
-        {formState.favIconUrl && <img src={formState.favIconUrl} className="h-4 w-4 mr-1"></img>}
-        <span>{formState.currentUrl}</span>{" "}
+      <div className="mb-2">
+        <div className="flex justify-between">
+          {formState.favIconUrl && <img src={formState.favIconUrl} className="h-4 w-4 mr-2"></img>}
+          <div className="text-gray-500">
+            {`${Math.round(formState.progress)}% · `}
+            <TimeAgo
+              date={formState.createAt}
+              // formatter={(value, unit, suffix) => <span className="text-gray-500">{`${value} ${unit} ${suffix}`}</span>}
+            />
+          </div>
+        </div>
+        <span>{formState.currentUrl}</span>
       </div>
+      <div className="border-t -mx-2 mb-2"></div>
       <CustomerForm
         state={formState}
         onChange={handleValueChange}
@@ -107,10 +118,11 @@ export function EditRecord(props: { id?: string }) {
         validity={validity}>
         <FormInput label="title" filed="title" />
         <Formtoggle label="isRegex" filed="isRegex" onChange={onRegexChange} />
-        <FormInput label="url" filed="url" disabled={!formState.isRegex} />
+        <FormTextArea label="url" filed="url" disabled={!formState.isRegex} />
         <FormInput label="mark" filed="mark" />
       </CustomerForm>
     </div>
   )
 }
+
 export default EditRecord

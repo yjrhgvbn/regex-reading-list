@@ -19,9 +19,11 @@ async function getPageInfo() {
     isRegex: matchRecord?.match?.type === "regex",
     title: matchRecord?.title || tab.title!,
     id: matchRecord?.id,
+    createAt: matchRecord?.createAt,
     record: matchRecord,
     favIconUrl: matchRecord?.favIconUrl || tab.favIconUrl,
-    isNeedWatch
+    isNeedWatch,
+    progress: matchRecord?.position?.progress || 0
   }
 }
 

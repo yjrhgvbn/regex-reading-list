@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useContext, useEffect } from "react"
 
-export function useValidity(
-  value: string | boolean,
-  ref: React.RefObject<HTMLInputElement>,
-  validity: ((value: any) => string | boolean) | undefined
-) {
+import { FormContext } from "./Form"
+
+export function useValidity(filed: string, ref: React.RefObject<HTMLInputElement | HTMLTextAreaElement>) {
+  const formContext = useContext(FormContext)
+  const value = formContext.state[filed] as string
+  const validity = formContext.validity?.[filed]
   const handleValidity = useCallback(
     (value: string | boolean) => {
       const inputRef = ref.current

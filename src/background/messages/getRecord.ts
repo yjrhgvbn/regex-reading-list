@@ -21,7 +21,9 @@ async function getRecord(params?: { id?: string }) {
       isRegex: matchRecord.match?.type === "regex",
       title: matchRecord.title || matchRecord.currentUrl,
       id: matchRecord.id,
-      favIconUrl: matchRecord.favIconUrl
+      favIconUrl: matchRecord.favIconUrl,
+      createAt: matchRecord.createAt,
+      progress: matchRecord?.position?.progress || 0
     }
   }
   return null

@@ -6,6 +6,7 @@ export const CONFIG_KEY = "read-config"
 export enum ConfigEnum {
   updateOnlyOpenByPlugin = "updateOnlyOpenByPlugin"
 }
-export const configSetting: Record<ConfigEnum, boolean> = {
+
+export const configSetting = {
   [ConfigEnum.updateOnlyOpenByPlugin]: true
 }

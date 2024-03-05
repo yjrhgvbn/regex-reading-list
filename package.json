@@ -34,7 +34,7 @@
       "https://*/*"
     ],
     "permissions": [
-      "tabs"
+      "activeTab"
     ]
   }
 }

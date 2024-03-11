@@ -1,7 +1,8 @@
-import { sendToContentScript, type PlasmoMessaging } from "@plasmohq/messaging"
+import { type PlasmoMessaging } from "@plasmohq/messaging"
 
 import { getScrollInfo } from "~background/action/getScrollInfo"
 import { watchScroll } from "~background/action/watchScroll"
+import { addTabRecord } from "~background/utils/tabRecord"
 import { getCurrentTab } from "~utils"
 
 import type { ReadRecord } from "../../interface"
@@ -32,10 +33,12 @@ export async function addPageRecord(params: Partial<ReadRecord> = {}) {
     title: title || tab.title,
     position,
     favIconUrl: tab.favIconUrl
-  })  
+  })
 
   if (record) {
     watchScroll(tab.id!, record.id)
+    // current added tab treat as opened by plugin
+    addTabRecord(tab.id!)
   }
   return recordList
 }

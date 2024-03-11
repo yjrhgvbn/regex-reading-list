@@ -1,7 +1,7 @@
 - [x] add a setting that only update record in a tab opened by the extension
 - [ ] add priority
 - [ ] can customize the form data
-- [ ] can drag and drop to reorder
+- [x] can drag and drop to reorder
 - [ ] can auto remove when the progress reaches a certain point
 - [ ] can be grouped(inconclusive)
 - [x] Change icon while watching

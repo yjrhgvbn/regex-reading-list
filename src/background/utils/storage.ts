@@ -58,6 +58,22 @@ export async function getList() {
   return lastList || []
 }
 
+export async function swapRecord(id: string, overId: string) {
+  try {
+    const list: ReadRecord[] = await getList()
+    const index = list.findIndex((item) => item.id === id)
+    const overIndex = list.findIndex((item) => item.id === overId)
+    if (index === -1 || overIndex === -1) return lastList
+    const [removed] = list.splice(index, 1)
+    list.splice(overIndex, 0, removed)
+    await storage.set(LIST_KEY, JSON.stringify(list))
+    reloadList()
+    return getList()
+  } catch (e) {
+    return lastList
+  }
+}
+
 export async function removeRecord(id: string) {
   try {
     const list: ReadRecord[] = await getList()

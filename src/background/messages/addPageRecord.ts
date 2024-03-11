@@ -8,14 +8,6 @@ import { getCurrentTab } from "~utils"
 import type { ReadRecord } from "../../interface"
 import { updateList } from "../utils/storage"
 
-export type RequestBody = {
-  id: number
-}
-
-export type ResponseBody = {
-  message: string
-}
-
 export async function addPageRecord(params: Partial<ReadRecord> = {}) {
   const tab = await getCurrentTab()
   const { match, title, position: paramPostion } = params

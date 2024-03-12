@@ -27,6 +27,10 @@ jobs:
         run: pnpm build
       - name: Package the extension into a zip artifact
         run: pnpm package
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/chrome-mv3-prod.zip
       - name: Browser Platform Publish
         uses: PlasmoHQ/bpp@v3
         with:

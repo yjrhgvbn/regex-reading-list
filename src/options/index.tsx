@@ -1,28 +1,30 @@
 import "./index.css"
 
+import { useEffect, useState } from "react"
+
 import { useStorage } from "@plasmohq/storage/hook"
 
-import { CONFIG_KEY, ConfigEnum, configSetting } from "~utils/const"
+import { ConfigEnum, getConfigs, setConfigValue, type ConfigSettings } from "~utils/config"
 
-const tips: Record<ConfigEnum, { title: string; describe?: string }> = {
-  updateOnlyOpenByPlugin: {
-    title: "update progress only open page by plugin"
-    // describe: "仅在插件打开时更新，关闭插件时不更新"
-  }
-}
 function IndexOptions() {
-  const [config, setConfig] = useStorage<typeof configSetting>(CONFIG_KEY, (v) => ({ ...configSetting, ...v }))
+  const [configs, setConfig] = useState<ConfigSettings>()
 
-  function updateConfig(key: keyof typeof config, value: boolean) {
-    setConfig({ ...config, [key]: value })
+  useEffect(() => {
+    getConfigs().then((res) => {
+      setConfig(res)
+    })
+  })
+
+  function updateConfig(key: ConfigEnum, value: boolean) {
+    setConfigValue(key, value)
   }
 
   return (
     <div className="mx-auto pt-10  max-w-[600px]">
       <div className="text-3xl font-bold border-b text-red-600">Settting</div>
 
-      {Object.entries(config).map(([key, value]) => {
-        const tip = tips[key as ConfigEnum]
+      {Object.entries(configs).map(([key, config]) => {
+        const { title, value, describe } = config
         return (
           <div className="flex pt-2" key={key}>
             <div className="flex items-center h-5">
@@ -39,11 +41,11 @@ function IndexOptions() {
             </div>
             <div className="ms-2 text-sm">
               <label htmlFor="helper-checkbox" className="font-medium text-gray-900 dark:text-gray-300">
-                {tip.title}
+                {title}
               </label>
-              {tip.describe && (
+              {describe && (
                 <p id="helper-checkbox-text" className="text-xs font-normal text-gray-500 dark:text-gray-300">
-                  {tip.describe}
+                  {describe}
                 </p>
               )}
             </div>

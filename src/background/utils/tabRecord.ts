@@ -1,6 +1,5 @@
 import { isUrlMatch } from "~utils"
-import { getConfig } from "~utils/config"
-import { ConfigEnum } from "~utils/const"
+import { ConfigEnum, getConfigValue } from "~utils/config"
 
 import { getList } from "./storage"
 
@@ -32,7 +31,7 @@ export async function checkIsNeedWatchScroll(tab: chrome.tabs.Tab) {
   const list = await getList()
   const matchRecord = list.find((item) => isUrlMatch(tab.url || "", item.match))
   if (!matchRecord) return { isNeedWatch: false, matchRecord }
-  const updateOnlyOpenByPlugin = await getConfig(ConfigEnum.updateOnlyOpenByPlugin)
+  const updateOnlyOpenByPlugin = await getConfigValue(ConfigEnum.updateOnlyOpenByPlugin)
   if (updateOnlyOpenByPlugin && !isTabOpenedByPlugin(tabId)) isNeedWatch = false
   return { isNeedWatch, matchRecord }
 }

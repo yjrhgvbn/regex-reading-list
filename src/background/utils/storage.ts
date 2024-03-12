@@ -1,6 +1,6 @@
 import { Storage } from "@plasmohq/storage"
 
-import { isUrlMatch } from "~utils"
+import { isUrlMatch, swapArrayElements } from "~utils"
 import { LIST_KEY } from "~utils/const"
 
 import type { ReadRecord } from "../../interface"
@@ -61,11 +61,7 @@ export async function getList() {
 export async function swapRecord(id: string, overId: string) {
   try {
     const list: ReadRecord[] = await getList()
-    const index = list.findIndex((item) => item.id === id)
-    const overIndex = list.findIndex((item) => item.id === overId)
-    if (index === -1 || overIndex === -1) return lastList
-    const [removed] = list.splice(index, 1)
-    list.splice(overIndex, 0, removed)
+    swapArrayElements(list, id, overId, (item) => item.id)
     await storage.set(LIST_KEY, JSON.stringify(list))
     reloadList()
     return getList()

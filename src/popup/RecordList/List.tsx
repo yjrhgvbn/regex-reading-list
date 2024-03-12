@@ -9,6 +9,7 @@ import type { GetPageInfoMessage, GetPageInfoRequest } from "~background/message
 import type { RemovePageRecordMessage, RemovePageRecordRequest } from "~background/messages/removePageRecord"
 import type { SwapPageRecordMessage, SwapPageRecordRequest } from "~background/messages/swapPageRecord"
 import type { MessageRespone, ReadRecord } from "~interface"
+import { swapArrayElements } from "~utils"
 
 import { useNavigate } from "../use"
 import RecordListDragItem, { RecordItem } from "./ListItem"
@@ -62,11 +63,7 @@ export function RecordList() {
 
   const swapRecord = useCallback(
     (id: string, overId: string) => {
-      const index = list.findIndex((item) => item.id === id)
-      const overIndex = list.findIndex((item) => item.id === overId)
-      if (index === -1 || overIndex === -1) return
-      const [removed] = list.splice(index, 1)
-      list.splice(overIndex, 0, removed)
+      swapArrayElements(list, id, overId, (item) => item.id)
       setList([...list])
       sendToBackground<SwapPageRecordRequest, SwapPageRecordMessage>({
         name: "swapPageRecord",

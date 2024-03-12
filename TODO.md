@@ -2,7 +2,9 @@
 - [ ] add priority
 - [ ] can customize the form data
 - [x] can drag and drop to reorder
-- [ ] can auto remove when the progress reaches a certain point
+- [x] can show floating button when the progress reaches a certain point
 - [ ] can be grouped(inconclusive)
 - [x] Change icon while watching
 - [x] add website icon
+- [ ] add a setting to control floating button
+- [ ] add a setting to set floating button threshold

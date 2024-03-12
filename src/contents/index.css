@@ -1,0 +1,11 @@
+#plasmo-shadow-container {
+  z-index: 99999 !important;
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+}
+
+#plasmo-shadow-container .plasmo-csui-container {
+  display: block !important;
+  position: relative !important;
+}

@@ -6,5 +6,5 @@
 - [ ] can be grouped(inconclusive)
 - [x] Change icon while watching
 - [x] add website icon
-- [ ] add a setting to control floating button
-- [ ] add a setting to set floating button threshold
+- [x] add a setting to control floating button
+- [x] add a setting to set floating button threshold

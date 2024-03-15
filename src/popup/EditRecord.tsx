@@ -39,7 +39,6 @@ export function EditRecord(props: { id?: string }) {
       })
     } else {
       sendToBackground<GetRecordRequest, GetRecordMessage>({ name: "getRecord", body: { id } }).then((res) => {
-        console.log("🚀 ~ sendToBackground<GetRecordRequest,GetRecordMessage> ~ res:", res)
         if (!res.body) return
         setFormState({
           ...formState,

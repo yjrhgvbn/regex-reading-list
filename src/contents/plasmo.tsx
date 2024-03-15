@@ -8,6 +8,7 @@ import { sendToBackground } from "@plasmohq/messaging"
 import type { GetPageInfoMessage, GetPageInfoRequest } from "~background/messages/getPageInfo"
 import type { RemovePageRecordMessage, RemovePageRecordRequest } from "~background/messages/removePageRecord"
 import type { ReadRecord } from "~interface"
+import { ConfigEnum, getConfigs, getConfigValue } from "~utils/config"
 
 import { getScrollInfo } from "./utils"
 
@@ -16,11 +17,25 @@ export const config: PlasmoCSConfig = {
 }
 let watchId: string | null = null
 let scrollProgress = 0
-let refreshCompont: ((any: []) => void) | null = null
+let setShowCompont: ((show: boolean) => void) | null = null
 
 let setWatchId = (id: string) => {
   watchId = id
-  if (refreshCompont) refreshCompont([])
+  tryShowFloatingButton()
+}
+
+async function tryShowFloatingButton() {
+  const floatingButtonThreshold = await getConfigValue(ConfigEnum.floatingButtonThreshold)
+  const showFloatingButton = await getConfigValue(ConfigEnum.showFloatingButton)
+  if (!showFloatingButton) {
+    if (setShowCompont) setShowCompont(false)
+    return
+  }
+  if (scrollProgress > floatingButtonThreshold) {
+    if (setShowCompont) setShowCompont(true)
+  } else {
+    if (setShowCompont) setShowCompont(false)
+  }
 }
 // use scrollend event to reduce the number of messages
 window.addEventListener(
@@ -29,7 +44,7 @@ window.addEventListener(
     if (!watchId) return
     const position = getScrollInfo()
     scrollProgress = position.progress
-    if (refreshCompont) refreshCompont([])
+    tryShowFloatingButton()
     sendToBackground<Partial<ReadRecord>>({
       name: "updatePageRecord",
       body: {
@@ -83,14 +98,14 @@ function removeRecord() {
   })
 }
 const FloatingButton = () => {
-  const [, setState] = useState([])
+  const [showCompont, setState] = useState(false)
   useEffect(() => {
-    refreshCompont = setState
+    setShowCompont = setState
     return () => {
-      refreshCompont = null
+      setShowCompont = null
     }
   }, [])
-  if (!watchId || scrollProgress < 95) return null
+  if (!showCompont) return null
   return (
     <button
       onClick={removeRecord}

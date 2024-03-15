@@ -1,5 +1,5 @@
 - [x] add a setting that only update record in a tab opened by the extension
-- [ ] add priority
+- [ ] add tag and filter
 - [ ] can customize the form data
 - [x] can drag and drop to reorder
 - [x] can show floating button when the progress reaches a certain point

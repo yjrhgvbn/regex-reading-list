@@ -1,21 +1,43 @@
+import { Storage } from "@plasmohq/storage"
+
 import { isUrlMatch } from "~utils"
 import { ConfigEnum, getConfigValue } from "~utils/config"
 
 import { getList } from "./storage"
 
-const tabOpenedByPlugin = new Set<number>()
+const TAB_STORAGE_KEY = "tabRecord"
 
-export function addTabRecord(id: number | undefined) {
-  if (id) tabOpenedByPlugin.add(id)
+// use storage, background may be reset after a while
+const storage = new Storage()
+
+export async function addTabRecord(id: number | undefined) {
+  if (id === undefined || id === null) return
+  const list = await getTabRecord()
+  await storage.set(TAB_STORAGE_KEY, [...list, id])
 }
 
-function removeTabRecord(id: number | undefined) {
-  if (id) tabOpenedByPlugin.delete(id)
+async function removeTabRecord(id: number | undefined) {
+  if (id === undefined || id === null) return
+  const list = await getTabRecord()
+  const index = list.indexOf(id)
+  if (index !== -1) {
+    list.splice(index, 1)
+    storage.set(TAB_STORAGE_KEY, list)
+  }
 }
 
-function isTabOpenedByPlugin(id: number | undefined) {
-  if (id) return tabOpenedByPlugin.has(id)
+async function isTabOpenedByPlugin(id: number | undefined) {
+  if (id === undefined || id === null) return
+  const list = await getTabRecord()
+  // TODO: remove, this log for debug
+  console.log("🚀 ~ isTabOpenedByPlugin ~ list:", list)
+  if (list.includes(id)) return true
   return false
+}
+
+async function getTabRecord() {
+  const res = await storage.get<number[]>(TAB_STORAGE_KEY)
+  return res || []
 }
 
 chrome.tabs.onRemoved.addListener(function (tabId) {
@@ -32,6 +54,8 @@ export async function checkIsNeedWatchScroll(tab: chrome.tabs.Tab) {
   const matchRecord = list.find((item) => isUrlMatch(tab.url || "", item.match))
   if (!matchRecord) return { isNeedWatch: false, matchRecord }
   const updateOnlyOpenByPlugin = await getConfigValue(ConfigEnum.updateOnlyOpenByPlugin)
-  if (updateOnlyOpenByPlugin && !isTabOpenedByPlugin(tabId)) isNeedWatch = false
+  if (updateOnlyOpenByPlugin && !(await isTabOpenedByPlugin(tabId))) {
+    isNeedWatch = false
+  }
   return { isNeedWatch, matchRecord }
 }

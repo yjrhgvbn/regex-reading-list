@@ -1,13 +1,12 @@
 import { checkIsNeedWatchScroll } from "~background/utils/tabRecord"
 
+import { clearWatchScroll } from "./action/clearWatchScroll"
 import { watchScroll } from "./action/watchScroll"
 import { updatePageRecord } from "./messages/updatePageRecord"
-import { clearWatchScroll } from "./action/clearWatchScroll"
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  if(changeInfo.url){
-    clearWatchScroll(tab.id!)
-
+  if (changeInfo.url) {
+    clearWatchScroll(tabId)
   }
   if (changeInfo.url || changeInfo.status === "complete") {
     checkIsNeedWatchScroll(tab).then(({ isNeedWatch, matchRecord }) => {
@@ -18,7 +17,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             currentUrl: changeInfo.url,
             ...(tab.favIconUrl && { favIconUrl: tab.favIconUrl })
           })
-          watchScroll(tab.id!, matchRecord!.id)
+          watchScroll(tabId, matchRecord!.id)
         }
       }
     })

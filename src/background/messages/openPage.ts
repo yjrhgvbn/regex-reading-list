@@ -17,7 +17,7 @@ export async function openPage(params: { record: ReadRecord }) {
       url: record.currentUrl,
       active: true
     })
-    addTabRecord(tab.id)
+    await addTabRecord(tab.id)
   }
   onIconLoad(tab).then((favIconUrl) => {
     if (favIconUrl) updatePageRecord({ id: record.id, favIconUrl })
@@ -26,12 +26,14 @@ export async function openPage(params: { record: ReadRecord }) {
 
   if (tab.id) {
     contentScrollTo(tab.id, record.position)
-    await chrome.tabs.sendMessage(tab.id, {
-      name: "scrollTo",
-      body: {
-        position: record.position
-      }
-    })
+    await chrome.tabs
+      .sendMessage(tab.id, {
+        name: "scrollTo",
+        body: {
+          position: record.position
+        }
+      })
+      .catch(() => {})
   }
 }
 

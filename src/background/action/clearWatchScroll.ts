@@ -1,7 +1,9 @@
 export async function clearWatchScroll(tabId: number) {
-  chrome.tabs.sendMessage(tabId, {
-    name: "clearWatchScroll",
-  })
+  chrome.tabs
+    .sendMessage(tabId, {
+      name: "clearWatchScroll"
+    }) // ignore error
+    .catch(() => {})
   setBadge(tabId)
 }
 

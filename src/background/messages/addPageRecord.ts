@@ -30,7 +30,7 @@ export async function addPageRecord(params: Partial<ReadRecord> = {}) {
   if (record) {
     watchScroll(tab.id!, record.id)
     // current added tab treat as opened by plugin
-    addTabRecord(tab.id!)
+    addTabRecord(tab.id!, tab.windowId)
   }
   return recordList
 }

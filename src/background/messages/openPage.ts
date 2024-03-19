@@ -17,7 +17,7 @@ export async function openPage(params: { record: ReadRecord }) {
       url: record.currentUrl,
       active: true
     })
-    await addTabRecord(tab.id)
+    await addTabRecord(tab.id, tab.windowId)
   }
   onIconLoad(tab).then((favIconUrl) => {
     if (favIconUrl) updatePageRecord({ id: record.id, favIconUrl })

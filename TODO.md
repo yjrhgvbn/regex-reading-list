@@ -8,3 +8,6 @@
 - [x] add website icon
 - [x] add a setting to control floating button
 - [x] add a setting to set floating button threshold
+- [ ] add shortcut to quick save
+- [ ] add auto remove, quick saved record can auto remove
+- [ ] support auto quick save when stay on a page for a certain timeS

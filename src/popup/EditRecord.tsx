@@ -22,7 +22,7 @@ export function EditRecord(props: { id?: string }) {
     id: "",
     currentUrl: "",
     favIconUrl: "",
-    createAt: 0,
+    createAt: new Date().getTime(),
     progress: 0
   })
   useEffect(() => {

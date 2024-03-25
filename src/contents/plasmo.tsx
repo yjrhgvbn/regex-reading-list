@@ -21,7 +21,11 @@ let setShowCompont: ((show: boolean) => void) | null = null
 
 let setWatchId = (id: string) => {
   watchId = id
-  tryShowFloatingButton()
+  if (!id) {
+    if (setShowCompont) setShowCompont(false)
+  } else {
+    tryShowFloatingButton()
+  }
 }
 
 async function tryShowFloatingButton() {
